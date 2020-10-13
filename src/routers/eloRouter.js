@@ -22,11 +22,24 @@ router.get('/', async (req, res) => {
         // })
         playerA = await MongoFindOne({ name: "vitor" })
         playerB = await MongoFindOne({ name: "lucas" })
-        results = matchup(playerA.elo, playerB.elo, 0.5)
+        results = matchup(playerA.elo, playerB.elo, 0)
         console.log(results)
         MongoUpdate({ name: playerA.name }, { $set: { elo: results.playerA } })
         MongoUpdate({ name: playerB.name }, { $set: { elo: results.playerB } })
         res.send("OK")
+    } catch (e) {
+        console.log(e)
+    }
+})
+
+router.get('/init', async (req, res) => {
+    try {
+        MongoDelete({})
+        MongoAdd([
+            { name: "vitor", elo: 1200 },
+            { name: "lucas", elo: 1200 }
+        ])
+        res.send("Inicializado")
     } catch (e) {
         console.log(e)
     }
