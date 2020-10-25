@@ -59,8 +59,23 @@ async function MongoUpdate(query, options) {
     }
 }
 
-exports.MongoFind = MongoFind
-exports.MongoAdd = MongoAdd
-exports.MongoDelete = MongoDelete
-exports.MongoUpdate = MongoUpdate
-exports.MongoFindOne = MongoFindOne
+async function MongoCountPlayers() {
+    try {
+        const database = client.db("melhorzao");
+        const collection = database.collection("players");
+        const results = await collection.countDocuments({})
+        // console.log(results)
+        return results
+    } catch (e) {
+        console.log(`DB Error: ${e}`)
+    }
+}
+
+module.exports = {
+    MongoAdd,
+    MongoFind,
+    MongoDelete,
+    MongoUpdate,
+    MongoFindOne,
+    MongoCountPlayers
+}
