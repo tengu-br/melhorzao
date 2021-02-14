@@ -4,10 +4,10 @@ const uri = "mongodb://localhost:27017";
 const client = new MongoClient(uri);
 client.connect();
 
-async function MongoFind(query, options) {
+async function MongoFind(db, col, query, options) {
     try {
-        const database = client.db("melhorzao");
-        const collection = database.collection("players");
+        const database = client.db(db);
+        const collection = database.collection(col);
         const cursor = collection.find(query, options);
         cursor.forEach(console.dir);
     } catch (e) {
@@ -15,10 +15,10 @@ async function MongoFind(query, options) {
     }
 }
 
-async function MongoFindOne(query, options) {
+async function MongoFindOne(db, col, query, options) {
     try {
-        const database = client.db("melhorzao");
-        const collection = database.collection("players");
+        const database = client.db(db);
+        const collection = database.collection(col);
         const result = collection.findOne(query, options);
         return result
     } catch (e) {
@@ -26,21 +26,21 @@ async function MongoFindOne(query, options) {
     }
 }
 
-async function MongoAdd(query, options) {
+async function MongoAdd(db, col, query, options) {
     try {
-        const database = client.db("melhorzao");
-        const collection = database.collection("players");
+        const database = client.db(db);
+        const collection = database.collection(col);
         const results = collection.insertMany(query, options);
         // console.log(results)
     } catch (e) {
-        console.log(`DB Error: ${e}`)
+       console.log(`DB Error: ${e}`)
     }
 }
 
-async function MongoDelete(query, options) {
+async function MongoDelete(db, col, query, options) {
     try {
-        const database = client.db("melhorzao");
-        const collection = database.collection("players");
+        const database = client.db(db);
+        const collection = database.collection(col);
         const results = collection.deleteMany(query, options);
         // console.log(results)
     } catch (e) {
@@ -48,10 +48,10 @@ async function MongoDelete(query, options) {
     }
 }
 
-async function MongoUpdate(query, options) {
+async function MongoUpdate(db, col, query, options) {
     try {
-        const database = client.db("melhorzao");
-        const collection = database.collection("players");
+        const database = client.db(db);
+        const collection = database.collection(col);
         const results = await collection.updateOne(query, options);
         // console.log(results)
     } catch (e) {
@@ -59,10 +59,10 @@ async function MongoUpdate(query, options) {
     }
 }
 
-async function MongoCountPlayers() {
+async function MongoCount(db, col) {
     try {
-        const database = client.db("melhorzao");
-        const collection = database.collection("players");
+        const database = client.db(db);
+        const collection = database.collection(col);
         const results = await collection.countDocuments({})
         // console.log(results)
         return results
@@ -77,5 +77,5 @@ module.exports = {
     MongoDelete,
     MongoUpdate,
     MongoFindOne,
-    MongoCountPlayers
+    MongoCount
 }

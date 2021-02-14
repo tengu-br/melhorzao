@@ -3,29 +3,12 @@ const router = new express.Router()
 const { matchup } = require('../controllers/elo')
 const { MongoFind, MongoAdd, MongoDelete, MongoUpdate, MongoFindOne } = require('../db/mongo')
 
-router.get('/', async (req, res) => {
+router.post('/matchupSync', async (req, res) => {
     try {
-        // MongoAdd([{ name: "Sicilian pizza", shape: "square" },
-        // { name: "New York pizza", shape: "round" },
-        // { name: "Grandma pizza", shape: "square" }])
-        // MongoDelete({ name: "New York pizza" })
-        // MongoDelete({ name: "Grandma pizza" })
-        // MongoDelete({ name: "Sicilian pizza" })
-        // await MongoFind({}, {
-        //     sort: { elo: -1 },
-        //     projection: { _id: 0, name: 1, elo: 1 },
-        // })
-        // await MongoUpdate({ name: "vitor" }, { $set: { elo: 1400, } })
-        // await MongoFind({}, {
-        //     sort: { elo: -1 },
-        //     projection: { _id: 0, name: 1, elo: 1 },
-        // })
-        playerA = await MongoFindOne({ name: "vitor" })
-        playerB = await MongoFindOne({ name: "lucas" })
-        results = matchup(playerA.elo, playerB.elo, 0)
+        results = matchup(req.body.playerA.elo, req.body.playerB.elo, 0)
         console.log(results)
-        MongoUpdate({ name: playerA.name }, { $set: { elo: results.playerA } })
-        MongoUpdate({ name: playerB.name }, { $set: { elo: results.playerB } })
+        await MongoUpdate("melhorzao", "players", { name: req.body.playerA.name }, { $set: { elo: results.playerA } })
+        await MongoUpdate("melhorzao", "players", { name: req.body.playerB.name }, { $set: { elo: results.playerB } })
         res.send("OK")
     } catch (e) {
         console.log(e)
@@ -34,10 +17,17 @@ router.get('/', async (req, res) => {
 
 router.get('/init', async (req, res) => {
     try {
-        MongoDelete({})
-        MongoAdd([
-            { name: "vitor", elo: 1200 },
-            { name: "lucas", elo: 1200 }
+        MongoDelete("melhorzao", "params", {})
+        MongoAdd("melhorzao", "params", [
+            { param: "counter", value: 5 },
+        ])
+        MongoDelete("melhorzao", "players", {})
+        MongoAdd("melhorzao", "players", [
+            { name: "vitor", elo: 1200, rand: 1 },
+            { name: "lucas", elo: 1200, rand: 2 },
+            { name: "daniel", elo: 1200, rand: 3 },
+            { name: "luan", elo: 1200, rand: 4 },
+            { name: "giovanni", elo: 1200, rand: 5 }
         ])
         res.send("Inicializado")
     } catch (e) {
