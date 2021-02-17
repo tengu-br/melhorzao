@@ -1,16 +1,33 @@
+// módulo de servidor web
 const express = require('express')
+/* 
+CORS é um protocolo de segurança q só permite chamadas a serem feitas de um certo domínio 
+por exemplo: se a gente lançar nossa aplicação sob o domínio melhorzao.com , dá pra gente
+restringir nossa API a só responder requests vindo desse domínio. Isso previne que alguém
+abra um postman da vida e comece a fazer uns requests adoidados e cagar com nosso matchmaking
+(AINDA NÃO ESTÁ CONFIGURADO)
+*/
 var cors = require('cors')
-// require('./db/mongoose')
+
+/* 
+Routers são os arquivos onde ficam expostos as rotas ('routes', por isso o nome de router)
+da nossa aplicação, nesse caso, da nossa API. é boas práticas ter arquivos de router separados
+para cada funcionalidade ou 'tema', pra n deixar a aplicação inteira com um só routers de 9999 linhas
+*/
 const eloRouter = require('./routers/eloRouter')
 const utilsRouter = require('./routers/utilsRouter')
 
+// Instanciando o servidor
 const app = express()
 
+// Configurando coisas básicas. Falando pra usar cors, os roteadores, e aceitar json.
 app.use(cors())
 app.use(express.json())
 app.use(eloRouter)
 app.use(utilsRouter)
 
+// to-do: mudar para variável de ambiente
 const port = 3001
 
+// deploy
 app.listen(port, () => { console.log('Servidor no ar!') })
