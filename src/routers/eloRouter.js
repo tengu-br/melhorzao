@@ -28,7 +28,7 @@ router.post('/matchupSync', async (req, res) => {
         console.log(results)
         await MongoUpdate("melhorzao", "players", { name: req.body.playerA.name }, { $set: { elo: results.playerA } })
         await MongoUpdate("melhorzao", "players", { name: req.body.playerB.name }, { $set: { elo: results.playerB } })
-    
+
         res.send({
             playerA: {
                 name: req.body.playerA.name,
@@ -47,7 +47,7 @@ router.post('/matchupSync', async (req, res) => {
 /*
 Rota só para testes. Deleta tudo das collections de params e players e adiciona
 uns valores para teste. Pelo amor de Deus tirar isso antes de fazer deploy.
-*/ 
+*/
 router.get('/init', async (req, res) => {
     try {
         MongoDelete("melhorzao", "params", {})
@@ -56,11 +56,11 @@ router.get('/init', async (req, res) => {
         ])
         MongoDelete("melhorzao", "players", {})
         MongoAdd("melhorzao", "players", [
-            { name: "vitor", elo: 1200, rand: 1 },
-            { name: "lucas", elo: 1200, rand: 2 },
-            { name: "daniel", elo: 1200, rand: 3 },
-            { name: "luan", elo: 1200, rand: 4 },
-            { name: "giovanni", elo: 1200, rand: 5 }
+            { name: "vitor", elo: 1200, rand: 1, url: "http://api.higherlowergame.com/_client/images/general/the-diary-of-anne-frank.jpg" },
+            { name: "lucas", elo: 1200, rand: 2, url: "http://api.higherlowergame.com/_client/images/general/water-polo.jpg" },
+            { name: "daniel", elo: 1200, rand: 3, url: "http://api.higherlowergame.com/_client/images/general/rich.jpg" },
+            { name: "luan", elo: 1200, rand: 4, url: "http://api.higherlowergame.com/_client/images/general/pac-man.jpg" },
+            { name: "giovanni", elo: 1200, rand: 5, url: "http://api.higherlowergame.com/_client/images/general/rottweiler.jpg" }
         ])
         res.send("Inicializado")
     } catch (e) {
