@@ -2,7 +2,7 @@
 const express = require('express')
 const router = new express.Router()
 const { MongoFind, MongoAdd, MongoDelete, MongoUpdate, MongoFindOne, MongoCount } = require('../db/mongo')
-const { randomNotSame } = require('../controllers/utils')
+const { randomNotSame, matchmaker } = require('../controllers/utils')
 
 /*
 Essa função retorna dois 'índices' aleatórios da collection de players para ser usado nos jogos (para sortear os players).
@@ -10,19 +10,58 @@ No moneto o front chama essa função que sorteia e retorna os jogadores pro fro
 sorteado direto do front, mas aí seria passível a manipulação. O cara poderia no console do front 'escolher' qual seria o
 matchup a ser jogado. Imagina se o matchmaking do dota ficasse dentro do client ao invés dos servidores da valve. Msm coisa
 */
-router.post('/coupleRandom', async (req, res) => {
+router.get('/coupleRandom', async (req, res) => {
+    try {
+        const collections = await MongoFindOne("melhorzao", "params", { param: "collectionsList" })
+        const collection = collections.value[Math.floor(Math.random() * (collections.value.length))].colName
+        var range = await matchmaker(collection)
+
+        const playerA = await MongoFindOne("melhorzao", collection, { rand: range.numberOne }, { projection: { '_id': 0, 'rand': 0 } })
+
+        var auxPlayer
+        var playerB = await MongoFindOne("melhorzao", collection, { rand: range.possibleMatches.pop() }, { projection: { '_id': 0, 'rand': 0 } })
+
+
+        while (range.possibleMatches.length > 0) {
+            auxPlayer = await MongoFindOne("melhorzao", collection, { rand: range.possibleMatches.pop() }, { projection: { '_id': 0, 'rand': 0 } })
+            // "se o elo do auxplayer for mais proximo que o elo do playerB, playerB recebe auxplayer"
+            if (Math.abs(auxPlayer.elo - playerA.elo) < Math.abs(playerB.elo - playerA.elo)) {
+                playerB = auxPlayer
+            }
+        }
+
+        // Devolve pro front
+        res.send({ playerA, playerB })
+    } catch (e) {
+        console.log(e)
+    }
+})
+
+/*
+Função de matchmaking: escolhe 1 jogador base, sorteia mais 10% da collection e depois retorna o jogador original e o
+sorteado com elo mais próximo.
+*/
+router.post('/match', async (req, res) => {
     try {
         // Pega dois números aleatórios diferentes
-        const range = await randomNotSame(req.body.collection)
-        // Acha os jogadores com esses números (indices)
-        const players = {
-            // Esse é um exemplo de função que PRECISA ser síncrona pq vc QUER retornar os jogadores pro front. Então tem q esperar
-            // o banco terminar de achar os jogadores através da keyword 'await'.
-            playerA: await MongoFindOne("melhorzao", req.body.collection, { rand: range.randA }, { projection: { '_id': 0, 'rand': 0 } }),
-            playerB: await MongoFindOne("melhorzao", req.body.collection, { rand: range.randB }, { projection: { '_id': 0, 'rand': 0 } })
+        var range = await matchmaker(req.body.collection)
+
+        const playerA = await MongoFindOne("melhorzao", req.body.collection, { rand: range.numberOne }, { projection: { '_id': 0, 'rand': 0 } })
+
+        var auxPlayer
+        var playerB = await MongoFindOne("melhorzao", req.body.collection, { rand: range.possibleMatches.pop() }, { projection: { '_id': 0, 'rand': 0 } })
+
+
+        while (range.possibleMatches.length > 0) {
+            auxPlayer = await MongoFindOne("melhorzao", req.body.collection, { rand: range.possibleMatches.pop() }, { projection: { '_id': 0, 'rand': 0 } })
+            // "se o elo do auxplayer for mais proximo que o elo do playerB, playerB recebe auxplayer"
+            if (Math.abs(auxPlayer.elo - playerA.elo) < Math.abs(playerB.elo - playerA.elo)) {
+                playerB = auxPlayer
+            }
         }
+
         // Devolve pro front
-        res.send(players)
+        res.send({ playerA, playerB })
     } catch (e) {
         console.log(e)
     }
@@ -32,7 +71,7 @@ router.get('/listaCollections', async (req, res) => {
     try {
         // Acha as collections
         const collections = await MongoFindOne("melhorzao", "params", { param: "collectionsList" }, { projection: { '_id': 0 } })
-        console.log(collections)
+
         // Devolve pro front
         res.send(collections)
     } catch (e) {

@@ -8,24 +8,6 @@ const { MongoFind, MongoAdd, MongoDelete, MongoUpdate, MongoFindOne, MongoCount 
 
 /*
 Retorna dois números dentre 1 e a qtd de itens da coleção
-Já que vamos ter collections diferentes no futuro, precisamos refatorar a função para passar
-a coleção como parametro da função. Perceba que a função não faz nenhum count no banco de dados,
-só um FindOne na collection de parametros. Isso é pq por organização e performance, eu guardo a qtd
-de itens em um campo já pronto para ser lido. Quando um item for adicionado na coleção, basta dar
-um +1 nesse parâmetro também. Por enquanto só tem um documento na collection de params chamado "counter"
-mas vamos fazer um document separado para cada collection. Exemplo:
-
-COLLECTION: PARAMS
-[
-    {
-        collection:"atores",
-        counter:"83"
-    },
-    {
-        collections:"jogos",
-        counter:"16"
-    }
-]
 */
 async function randomNotSame(collection) {
     const min = 1
@@ -34,6 +16,7 @@ async function randomNotSame(collection) {
         if (col.colName === collection)
             max = col.counter
     });
+
     var numberOne = 0, numberTwo = 0
 
     if (max != 0) {
@@ -45,7 +28,38 @@ async function randomNotSame(collection) {
     return ({ randA: numberOne, randB: numberTwo })
 }
 
+/*
+Escolhe 1 jogador base, sorteia mais 10% da collection
+*/
+async function matchmaker(collection) {
+    const min = 1
+    var max = await MongoFindOne("melhorzao", "params", { param: "collectionsList" })
+    max.value.forEach(col => {
+        if (col.colName === collection)
+            max = col.counter
+    });
+    // Quantidade de jogadores adicionais a serem sorteados = 10% da collection
+    tenPercent = Math.ceil(max / 10)
+    var numberOne = 0, numberTwo = 0, possibleMatches = []
+
+    if (max != 0) {
+        // Jogador original
+        numberOne = Math.floor(Math.random() * (max - min + 1) + min);
+        do {
+            do {
+                // Garantindo que não há números repetidos
+                numberTwo = Math.floor(Math.random() * (max - min + 1) + min);
+            } while (numberOne === numberTwo || possibleMatches.includes(numberTwo))
+            // Array de números sorteados
+            possibleMatches.push(numberTwo)
+        } while (possibleMatches.length < tenPercent)
+        // console.log(`MAX: ${max} \n 10%: ${tenPercent} \n nº1: ${numberOne} \n matches: ${possibleMatches}`)
+    }
+    return ({ numberOne, possibleMatches })
+}
+
 // Exportando
 module.exports = {
-    randomNotSame
+    randomNotSame,
+    matchmaker
 }
