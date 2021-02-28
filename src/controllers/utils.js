@@ -1,7 +1,7 @@
 /*
 Este é apenas um arquivo auxiliar para colocar funções de lógica que podem se aplicar
 em vários lugares do código.
-*/ 
+*/
 
 // Importando as funções para manipular o banco de dados
 const { MongoFind, MongoAdd, MongoDelete, MongoUpdate, MongoFindOne, MongoCount } = require('../db/mongo')
@@ -27,11 +27,15 @@ COLLECTION: PARAMS
     }
 ]
 */
-async function randomNotSame() {
+async function randomNotSame(collection) {
     const min = 1
-    const max = (await MongoFindOne("melhorzao", "params", { param: "counter" })).value
+    var max = await MongoFindOne("melhorzao", "params", { param: "collectionsList" })
+    max.value.forEach(col => {
+        if (col.colName === collection)
+            max = col.counter
+    });
     var numberOne = 0, numberTwo = 0
-    
+
     if (max != 0) {
         numberOne = Math.floor(Math.random() * (max - min + 1) + min);
         do {
