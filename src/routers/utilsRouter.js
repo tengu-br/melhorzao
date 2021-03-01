@@ -16,7 +16,7 @@ router.get('/coupleRandom', async (req, res) => {
         const collection = collections.value[Math.floor(Math.random() * (collections.value.length))].colName
         var range = await matchmaker(collection)
 
-        const playerA = await MongoFindOne("melhorzao", collection, { rand: range.numberOne }, { projection: { '_id': 0, 'rand': 0 } })
+        var playerA = await MongoFindOne("melhorzao", collection, { rand: range.numberOne }, { projection: { '_id': 0, 'rand': 0 } })
 
         var auxPlayer
         var playerB = await MongoFindOne("melhorzao", collection, { rand: range.possibleMatches.pop() }, { projection: { '_id': 0, 'rand': 0 } })
@@ -30,8 +30,24 @@ router.get('/coupleRandom', async (req, res) => {
             }
         }
 
+        if (playerA.elo > playerB.elo) {
+            playerA.elo = 1
+            playerB.elo = 0
+        } else if (playerA.elo < playerB.elo) {
+            playerA.elo = 0
+            playerB.elo = 1
+        } else {
+            playerA.elo = 1
+            playerB.elo = 1
+        }
+
+
+        delete playerA.perceivedElo
+        delete playerB.perceivedElo
+
+
         // Devolve pro front
-        res.send({ playerA, playerB })
+        res.send({ collection, playerA, playerB })
     } catch (e) {
         console.log(e)
     }
@@ -46,7 +62,7 @@ router.post('/match', async (req, res) => {
         // Pega dois números aleatórios diferentes
         var range = await matchmaker(req.body.collection)
 
-        const playerA = await MongoFindOne("melhorzao", req.body.collection, { rand: range.numberOne }, { projection: { '_id': 0, 'rand': 0 } })
+        var playerA = await MongoFindOne("melhorzao", req.body.collection, { rand: range.numberOne }, { projection: { '_id': 0, 'rand': 0 } })
 
         var auxPlayer
         var playerB = await MongoFindOne("melhorzao", req.body.collection, { rand: range.possibleMatches.pop() }, { projection: { '_id': 0, 'rand': 0 } })
@@ -59,6 +75,21 @@ router.post('/match', async (req, res) => {
                 playerB = auxPlayer
             }
         }
+
+        if (playerA.elo > playerB.elo) {
+            playerA.elo = 1
+            playerB.elo = 0
+        } else if (playerA.elo < playerB.elo) {
+            playerA.elo = 0
+            playerB.elo = 1
+        } else {
+            playerA.elo = 1
+            playerB.elo = 1
+        }
+
+
+        delete playerA.perceivedElo
+        delete playerB.perceivedElo
 
         // Devolve pro front
         res.send({ playerA, playerB })

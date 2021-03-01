@@ -24,23 +24,63 @@ await é criar gargalos desnecessários.
 */
 router.post('/matchupSync', async (req, res) => {
     try {
-        results = matchup(req.body.playerA.elo, req.body.playerB.elo, 1)
-        console.log(results)
-        await MongoUpdate("melhorzao", "players", { name: req.body.playerA.name }, { $set: { elo: results.playerA } })
-        await MongoUpdate("melhorzao", "players", { name: req.body.playerB.name }, { $set: { elo: results.playerB } })
+
+        const winner = await MongoFindOne("melhorzao", req.body.collection, { name: req.body.winner })
+        const loser = await MongoFindOne("melhorzao", req.body.collection, { name: req.body.loser })
+
+        results = matchup(winner.elo, loser.elo, 1)
+
+        await MongoUpdate("melhorzao", req.body.collection, { name: req.body.winner }, { $set: { elo: results.playerA } })
+        await MongoUpdate("melhorzao", req.body.collection, { name: req.body.loser }, { $set: { elo: results.playerB } })
 
         res.send({
-            playerA: {
-                name: req.body.playerA.name,
+            winner: {
+                name: req.body.winner,
                 elo: results.playerA
             },
-            playerB: {
-                name: req.body.playerB.name,
+            loser: {
+                name: req.body.loser,
                 elo: results.playerB
             }
         })
     } catch (e) {
         console.log(e)
+    }
+})
+
+router.post('/matchup', async (req, res) => {
+    try {
+
+        const winner = await MongoFindOne("melhorzao", req.body.collection, { name: req.body.winner })
+        const loser = await MongoFindOne("melhorzao", req.body.collection, { name: req.body.loser })
+
+        results = matchup(winner.elo, loser.elo, 1)
+
+        MongoUpdate("melhorzao", req.body.collection, { name: req.body.winner }, { $set: { elo: results.playerA } })
+        MongoUpdate("melhorzao", req.body.collection, { name: req.body.loser }, { $set: { elo: results.playerB } })
+
+        res.sendStatus(200)
+    } catch (e) {
+        console.log(e)
+        res.sendStatus(600)
+    }
+})
+
+router.post('/perceivedMatchup', async (req, res) => {
+    try {
+
+        const winner = await MongoFindOne("melhorzao", req.body.collection, { name: req.body.winner })
+        const loser = await MongoFindOne("melhorzao", req.body.collection, { name: req.body.loser })
+
+        results = matchup(winner.perceivedElo, loser.perceivedElo, 1)
+
+        MongoUpdate("melhorzao", req.body.collection, { name: req.body.winner }, { $set: { perceivedElo: results.playerA } })
+        MongoUpdate("melhorzao", req.body.collection, { name: req.body.loser }, { $set: { perceivedElo: results.playerB } })
+
+        res.sendStatus(200)
+    } catch (e) {
+        console.log(e)
+        res.sendStatus(600)
     }
 })
 

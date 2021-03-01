@@ -21,7 +21,12 @@ const utilsRouter = require('./routers/utilsRouter')
 const app = express()
 
 // Configurando coisas básicas. Falando pra usar cors, os roteadores, e aceitar json.
-app.use(cors())
+const corsOptions = {
+    origin: 'http://localhost:3000',
+    optionsSuccessStatus: 200
+}
+
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(eloRouter)
 app.use(utilsRouter)
