@@ -8,6 +8,7 @@ abra um postman da vida e comece a fazer uns requests adoidados e cagar com noss
 (AINDA NÃO ESTÁ CONFIGURADO)
 */
 var cors = require('cors')
+const rateLimit = require("express-rate-limit");
 
 /* 
 Routers são os arquivos onde ficam expostos as rotas ('routes', por isso o nome de router)
@@ -26,6 +27,12 @@ const corsOptions = {
     optionsSuccessStatus: 200
 }
 
+const limiter = rateLimit({
+    windowMs: 10000, // 10 segundos
+    max: 10 // limit each IP to 10 requests per windowMs
+})
+
+app.use(limiter)
 app.use(cors(corsOptions))
 app.use(express.json())
 app.use(eloRouter)

@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    container_name: melhorzao-api
+    ports:
+      - "3001:3001"
+    network_mode: host

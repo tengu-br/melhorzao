@@ -30,8 +30,8 @@ router.post('/matchupSync', async (req, res) => {
 
         results = matchup(winner.elo, loser.elo, 1)
 
-        await MongoUpdate("melhorzao", req.body.collection, { name: req.body.winner }, { $set: { elo: results.playerA } })
-        await MongoUpdate("melhorzao", req.body.collection, { name: req.body.loser }, { $set: { elo: results.playerB } })
+        await MongoUpdate("melhorzao", req.body.collection, { name: req.body.winner }, { $set: { elo: results.playerA, counter: winner.counter + 1 } })
+        await MongoUpdate("melhorzao", req.body.collection, { name: req.body.loser }, { $set: { elo: results.playerB, counter: loser.counter + 1 } })
 
         res.send({
             winner: {
@@ -56,8 +56,8 @@ router.post('/matchup', async (req, res) => {
 
         results = matchup(winner.elo, loser.elo, 1)
 
-        MongoUpdate("melhorzao", req.body.collection, { name: req.body.winner }, { $set: { elo: results.playerA } })
-        MongoUpdate("melhorzao", req.body.collection, { name: req.body.loser }, { $set: { elo: results.playerB } })
+        MongoUpdate("melhorzao", req.body.collection, { name: req.body.winner }, { $set: { elo: results.playerA, counter: winner.counter + 1 } })
+        MongoUpdate("melhorzao", req.body.collection, { name: req.body.loser }, { $set: { elo: results.playerB, counter: loser.counter + 1 } })
 
         res.sendStatus(200)
     } catch (e) {
@@ -88,25 +88,25 @@ router.post('/perceivedMatchup', async (req, res) => {
 Rota só para testes. Deleta tudo das collections de params e players e adiciona
 uns valores para teste. Pelo amor de Deus tirar isso antes de fazer deploy.
 */
-router.get('/init', async (req, res) => {
-    try {
-        MongoDelete("melhorzao", "params", {})
-        MongoAdd("melhorzao", "params", [
-            { param: "counter", value: 5 },
-        ])
-        MongoDelete("melhorzao", "players", {})
-        MongoAdd("melhorzao", "players", [
-            { name: "vitor", elo: 1200, rand: 1, url: "http://api.higherlowergame.com/_client/images/general/the-diary-of-anne-frank.jpg" },
-            { name: "lucas", elo: 1200, rand: 2, url: "http://api.higherlowergame.com/_client/images/general/water-polo.jpg" },
-            { name: "daniel", elo: 1200, rand: 3, url: "http://api.higherlowergame.com/_client/images/general/rich.jpg" },
-            { name: "luan", elo: 1200, rand: 4, url: "http://api.higherlowergame.com/_client/images/general/pac-man.jpg" },
-            { name: "giovanni", elo: 1200, rand: 5, url: "http://api.higherlowergame.com/_client/images/general/rottweiler.jpg" }
-        ])
-        res.send("Inicializado")
-    } catch (e) {
-        console.log(e)
-    }
-})
+// router.get('/init', async (req, res) => {
+//     try {
+//         MongoDelete("melhorzao", "params", {})
+//         MongoAdd("melhorzao", "params", [
+//             { param: "counter", value: 5 },
+//         ])
+//         MongoDelete("melhorzao", "players", {})
+//         MongoAdd("melhorzao", "players", [
+//             { name: "vitor", elo: 1200, rand: 1, url: "http://api.higherlowergame.com/_client/images/general/the-diary-of-anne-frank.jpg" },
+//             { name: "lucas", elo: 1200, rand: 2, url: "http://api.higherlowergame.com/_client/images/general/water-polo.jpg" },
+//             { name: "daniel", elo: 1200, rand: 3, url: "http://api.higherlowergame.com/_client/images/general/rich.jpg" },
+//             { name: "luan", elo: 1200, rand: 4, url: "http://api.higherlowergame.com/_client/images/general/pac-man.jpg" },
+//             { name: "giovanni", elo: 1200, rand: 5, url: "http://api.higherlowergame.com/_client/images/general/rottweiler.jpg" }
+//         ])
+//         res.send("Inicializado")
+//     } catch (e) {
+//         console.log(e)
+//     }
+// })
 
 // Exportando o roteador (vai ser importado no index.js)
 module.exports = router
