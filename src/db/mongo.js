@@ -12,8 +12,8 @@ uso o driver nativo do mongoDB.
 const { MongoClient } = require("mongodb");
 
 // TO-DO: trocar para variável de ambiente e encapsular em try catch
-const uri = "mongodb://localhost:27017";
-const client = new MongoClient(uri);
+// const uri = process.env.MONGO_URI
+const client = new MongoClient(process.env.MONGO_URI);
 client.connect();
 
 /*
@@ -22,7 +22,7 @@ Eu só criei essas funções pra organizar, abstrair e tirar um pouco o código 
 fazer conexao com o banco, escolher db e collection etc... E todo arquivo que fizesse isso teria que importar o driver
 que nem a primeira linha de código desse arquivo. Exemplo: nos outros arquivos que quiserem inserir algo no banco, só
 precisa chamar: MongoAdd(banco, collection, query) e pronto.
-*/ 
+*/
 
 async function MongoFind(db, col, query, options) {
     try {
@@ -53,7 +53,7 @@ async function MongoAdd(db, col, query, options) {
         const results = collection.insertMany(query, options);
         // console.log(results)
     } catch (e) {
-       console.log(`DB Error: ${e}`)
+        console.log(`DB Error: ${e}`)
     }
 }
 

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 // módulo de servidor web
 const express = require('express')
 /* 
@@ -23,7 +25,7 @@ const app = express()
 
 // Configurando coisas básicas. Falando pra usar cors, os roteadores, e aceitar json.
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: process.env.FRONT_ADDR,
     optionsSuccessStatus: 200
 }
 
@@ -38,7 +40,7 @@ app.use(express.json())
 app.use(eloRouter)
 app.use(utilsRouter)
 
-// to-do: mudar para variável de ambiente
+
 const port = 3001
 
 // deploy

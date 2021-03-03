@@ -20,6 +20,7 @@
   "homepage": "https://github.com/tengu-br/melhorzao#readme",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
     "elo-rank": "^1.0.4",
     "express": "^4.17.1",
     "express-rate-limit": "^5.2.6",
