@@ -31,9 +31,9 @@ const corsOptions = {
 
 const limiter = rateLimit({
     windowMs: 10000, // 10 segundos
-    max: 10 // limit each IP to 10 requests per windowMs
+    max: 8 // limit each IP to 8 requests per windowMs
 })
-
+app.set('trust proxy', 1)
 app.use(limiter)
 app.use(cors(corsOptions))
 app.use(express.json())
